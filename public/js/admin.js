@@ -57,11 +57,11 @@ async function loadStats() {
             </div>
             <div class="stat-card">
                 <div class="stat-label">Выручка сегодня</div>
-                <div class="stat-value">${(stats.today_revenue || 0).toFixed(2)} ₽</div>
+                <div class="stat-value">${(stats.today_revenue || 0).toFixed(0)} сум</div>
             </div>
             <div class="stat-card">
                 <div class="stat-label">Выручка за месяц</div>
-                <div class="stat-value">${(stats.month_revenue || 0).toFixed(2)} ₽</div>
+                <div class="stat-value">${(stats.month_revenue || 0).toFixed(0)} сум</div>
             </div>
             <div class="stat-card">
                 <div class="stat-label">Занято столов</div>
@@ -98,11 +98,11 @@ async function loadUsers() {
                 <td>${getRoleName(u.role)}</td>
                 <td>${u.is_active ? '✅ Активен' : '❌ Неактивен'}</td>
                 <td>
-                    <button class="action-btn edit-btn" onclick='editUser(${JSON.stringify(u)})'>Изменить</button>
-                    <button class="action-btn ${u.is_active ? 'delete-btn' : 'edit-btn'}" onclick="toggleUserStatus(${u.id}, ${!u.is_active})">
-                        ${u.is_active ? 'Деактивировать' : 'Активировать'}
+                    <button class="action-btn edit-btn" onclick='editUser(${JSON.stringify(u)})' title="Изменить">✏️</button>
+                    <button class="action-btn ${u.is_active ? 'delete-btn' : 'edit-btn'}" onclick="toggleUserStatus(${u.id}, ${!u.is_active})" title="${u.is_active ? 'Деактивировать' : 'Активировать'}">
+                        ${u.is_active ? '🔒' : '🔓'}
                     </button>
-                    <button class="action-btn delete-btn" onclick="deleteUser(${u.id})">Удалить</button>
+                    <button class="action-btn delete-btn" onclick="deleteUser(${u.id})" title="Удалить">🗑️</button>
                 </td>
             </tr>
         `).join('');
@@ -129,13 +129,13 @@ async function loadMenu() {
                 <td>${item.id}</td>
                 <td>${item.name}</td>
                 <td>${item.category_name || '-'}</td>
-                <td>${parseFloat(item.price).toFixed(2)} ₽</td>
+                <td>${parseFloat(item.price).toFixed(0)} сум</td>
                 <td>${item.is_active ? '✅ Активно' : '❌ Неактивно'}</td>
                 <td>
-                    <button class="action-btn edit-btn" onclick="toggleMenuItem(${item.id}, ${!item.is_active})">
-                        ${item.is_active ? 'Скрыть' : 'Показать'}
+                    <button class="action-btn edit-btn" onclick="toggleMenuItem(${item.id}, ${!item.is_active})" title="${item.is_active ? 'Скрыть' : 'Показать'}">
+                        ${item.is_active ? '👁️' : '👁️‍🗨️'}
                     </button>
-                    <button class="action-btn delete-btn" onclick="deleteMenuItem(${item.id})">Удалить</button>
+                    <button class="action-btn delete-btn" onclick="deleteMenuItem(${item.id})" title="Удалить">🗑️</button>
                 </td>
             </tr>
         `).join('');
@@ -164,10 +164,10 @@ async function loadCategories() {
                 <td>${cat.display_order}</td>
                 <td>${cat.is_active ? '✅ Активна' : '❌ Неактивна'}</td>
                 <td>
-                    <button class="action-btn edit-btn" onclick="toggleCategory(${cat.id}, ${!cat.is_active})">
-                        ${cat.is_active ? 'Скрыть' : 'Показать'}
+                    <button class="action-btn edit-btn" onclick="toggleCategory(${cat.id}, ${!cat.is_active})" title="${cat.is_active ? 'Скрыть' : 'Показать'}">
+                        ${cat.is_active ? '👁️' : '👁️‍🗨️'}
                     </button>
-                    <button class="action-btn delete-btn" onclick="deleteCategory(${cat.id})">Удалить</button>
+                    <button class="action-btn delete-btn" onclick="deleteCategory(${cat.id})" title="Удалить">🗑️</button>
                 </td>
             </tr>
         `).join('');
