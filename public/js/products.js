@@ -1,4 +1,4 @@
-// Функции для работы с товарами
+/// Функции для работы с товарами
 
 // Загрузка товаров
 async function loadProducts() {
@@ -495,5 +495,6 @@ async function deleteProduct(id) {
         alert(error.message);
     }
 }
+
 
 

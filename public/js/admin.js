@@ -1,4 +1,4 @@
-ccconst API_URL = window.location.origin + '/api';
+const API_URL = window.location.origin + '/api';
 const token = localStorage.getItem('token');
 const user = JSON.parse(localStorage.getItem('user') || '{}');
 const categoryForm = document.getElementById('categoryForm');
@@ -1164,3 +1164,18 @@ async function toggleCategory(id, isActive) {
 loadStats();
 
 
+
+// Переключение вкладок
+function switchTab(tabName) {
+    // Скрыть все вкладки
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
+    
+    // Активировать выбранную вкладку
+    const selectedTab = document.querySelector([onclick="switchTab('')"]);
+    if (selectedTab) selectedTab.classList.add('active');
+    
+    // Активировать соответствующую секцию
+    const selectedSection = document.getElementById(tabName + '-section');
+    if (selectedSection) selectedSection.classList.add('active');
+}
