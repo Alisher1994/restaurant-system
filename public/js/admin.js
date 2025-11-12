@@ -30,6 +30,7 @@ function switchTab(tabName) {
     // Загрузить данные для вкладки
     if (tabName === 'stats') loadStats();
     if (tabName === 'users') loadUsers();
+    if (tabName === 'products') loadProducts();
     if (tabName === 'menu') loadMenu();
     if (tabName === 'categories') loadCategories();
 }

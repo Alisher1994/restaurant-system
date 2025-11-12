@@ -20,6 +20,7 @@ const cookRoutes = require('./routes/cook');
 const supplierRoutes = require('./routes/supplier');
 const warehouseRoutes = require('./routes/warehouse');
 const tablesRoutes = require('./routes/tables');
+const productsRoutes = require('./routes/products');
 
 // Подключение маршрутов
 app.use('/api/auth', authRoutes);
@@ -28,6 +29,9 @@ app.use('/api/cashier', cashierRoutes);
 app.use('/api/waiter', waiterRoutes);
 app.use('/api/cook', cookRoutes);
 app.use('/api/supplier', supplierRoutes);
+app.use('/api/warehouse', warehouseRoutes);
+app.use('/api/tables', tablesRoutes);
+app.use('/api/products', productsRoutes);
 app.use('/api/warehouse', warehouseRoutes);
 app.use('/api/tables', tablesRoutes);
 
