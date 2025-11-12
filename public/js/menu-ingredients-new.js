@@ -3,6 +3,80 @@ let currentIngredients = [];
 let allProducts = [];
 let selectedSearchProduct = null;
 
+// Показать модальное окно добавления блюда
+async function showAddMenuItem() {
+    // Загрузить категории для селекта
+    const response = await fetch('/api/admin/categories', {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    });
+    const categories = await response.json();
+    
+    const categorySelect = document.getElementById('menuItemCategory');
+    categorySelect.innerHTML = categories.map(cat => 
+        `<option value="${cat.id}">${cat.name}</option>`
+    ).join('');
+    
+    // Загрузить товары для ингредиентов
+    await loadProductsForIngredients();
+    
+    document.getElementById('menuForm').reset();
+    document.getElementById('menuItemId').value = '';
+    document.getElementById('menuModalTitle').textContent = 'Добавить блюдо';
+    document.getElementById('menuSubmitBtn').textContent = 'Сохранить';
+    document.getElementById('menuItemPhotoPreview').style.display = 'none';
+    document.getElementById('menuItemCostPrice').value = '0';
+    document.getElementById('menuItemActive').checked = true;
+    document.getElementById('menuItemInStock').checked = true;
+    
+    currentIngredients = [];
+    renderIngredients();
+    calculateCost();
+    
+    document.getElementById('menuModal').classList.add('active');
+}
+
+// Редактировать блюдо
+async function editMenuItem(item) {
+    // Загрузить категории для селекта
+    const response = await fetch('/api/admin/categories', {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    });
+    const categories = await response.json();
+    
+    const categorySelect = document.getElementById('menuItemCategory');
+    categorySelect.innerHTML = categories.map(cat => 
+        `<option value="${cat.id}">${cat.name}</option>`
+    ).join('');
+    
+    // Загрузить товары для ингредиентов
+    await loadProductsForIngredients();
+    
+    // Загрузить ингредиенты блюда
+    await loadMenuItemIngredients(item.id);
+    
+    document.getElementById('menuItemId').value = item.id;
+    document.getElementById('menuItemName').value = item.name;
+    document.getElementById('menuItemCategory').value = item.category_id;
+    document.getElementById('menuItemPrice').value = item.price;
+    document.getElementById('menuItemCostPrice').value = item.cost_price || 0;
+    document.getElementById('menuItemDescription').value = item.description || '';
+    document.getElementById('menuItemActive').checked = item.is_active;
+    document.getElementById('menuItemInStock').checked = item.in_stock !== false;
+    
+    // Показать текущее фото если есть
+    if (item.image_url) {
+        const preview = document.getElementById('menuItemPhotoPreview');
+        preview.src = item.image_url;
+        preview.style.display = 'block';
+    } else {
+        document.getElementById('menuItemPhotoPreview').style.display = 'none';
+    }
+    
+    document.getElementById('menuModalTitle').textContent = 'Редактировать блюдо';
+    document.getElementById('menuSubmitBtn').textContent = 'Сохранить';
+    document.getElementById('menuModal').classList.add('active');
+}
+
 // Загрузка списка товаров для поиска
 async function loadProductsForIngredients() {
     try {
@@ -14,7 +88,7 @@ async function loadProductsForIngredients() {
 
         if (response.ok) {
             allProducts = await response.json();
-            console.log('Товары загружены для ингредиентов:', allProducts.length);
+            console.log('Loaded products:', allProducts);
         } else {
             console.error('Ошибка загрузки товаров');
         }
@@ -236,6 +310,23 @@ async function saveMenuItemIngredients(menuItemId) {
 // Инициализация
 document.addEventListener('DOMContentLoaded', () => {
     loadProductsForIngredients();
+    
+    // Предпросмотр фото при выборе
+    const photoInput = document.getElementById('menuItemPhoto');
+    if (photoInput) {
+        photoInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const preview = document.getElementById('menuItemPhotoPreview');
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
     
     // Поиск товаров при вводе
     const searchInput = document.getElementById('ingredientSearch');
