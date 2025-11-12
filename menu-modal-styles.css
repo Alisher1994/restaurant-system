@@ -1,0 +1,152 @@
+/* Дополнительные стили для обновленного модального окна меню */
+
+/* Квадратный блок для фото */
+.photo-upload-box {
+    width: 200px;
+    height: 200px;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f9f9f9;
+    position: relative;
+}
+
+.photo-upload-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.photo-upload-box.has-image {
+    border-style: solid;
+    border-color: #4caf50;
+}
+
+/* Однострочное добавление ингредиентов */
+.ingredient-add-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    background: #f5f5f5;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.ingredient-add-row input[type="text"] {
+    flex: 2;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.ingredient-add-row input[type="number"] {
+    flex: 1;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.ingredient-add-row select {
+    flex: 1;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.ingredient-add-row button {
+    padding: 12px 20px;
+    font-size: 16px;
+    white-space: nowrap;
+}
+
+/* Список ингредиентов */
+.ingredients-list {
+    margin-top: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 10px;
+    background: white;
+}
+
+.ingredient-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: #f9f9f9;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    border-left: 4px solid #4caf50;
+}
+
+.ingredient-item:hover {
+    background: #f0f0f0;
+}
+
+/* Результаты поиска */
+.search-results {
+    position: absolute;
+    z-index: 1000;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    max-height: 300px;
+    overflow-y: auto;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    display: none;
+    width: 100%;
+    margin-top: 5px;
+}
+
+.search-result-item {
+    padding: 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.search-result-item:hover {
+    background: #f5f5f5;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+/* Улучшенные поля ввода */
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #4caf50;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+/* Селект статуса */
+#menuItemStatus {
+    font-weight: 500;
+}
+
+#menuItemStatus option {
+    padding: 10px;
+}
