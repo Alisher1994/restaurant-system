@@ -7,12 +7,36 @@ async function loadProducts() {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         
-        if (!response.ok) throw new Error('Ошибка загрузки товаров');
+        if (!response.ok) {
+            console.error('Response status:', response.status);
+            throw new Error('Ошибка загрузки товаров');
+        }
         
         const products = await response.json();
+        console.log('Loaded products:', products);
         
         const tbody = document.getElementById('productsTableBody');
-        tbody.innerHTML = products.map(p => `
+        
+        if (products.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 20px; color: #999;">Товары не добавлены</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = products.map(p => {
+            const productData = {
+                id: p.id,
+                name: p.name,
+                category_id: p.category_id,
+                category_name: p.category_name,
+                barcode: p.barcode,
+                netto: p.netto,
+                brutto: p.brutto,
+                unit: p.unit,
+                is_active: p.is_active,
+                has_photo: p.has_photo
+            };
+            
+            return `
             <tr>
                 <td>${p.id}</td>
                 <td>
@@ -21,21 +45,22 @@ async function loadProducts() {
                 <td>${p.name}</td>
                 <td>${p.category_name || '-'}</td>
                 <td>${p.barcode || '-'}</td>
-                <td>${p.netto ? p.netto + ' ' + p.unit : '-'}</td>
-                <td>${p.brutto ? p.brutto + ' ' + p.unit : '-'}</td>
+                <td>${p.netto ? p.netto + ' ' + (p.unit || 'кг') : '-'}</td>
+                <td>${p.brutto ? p.brutto + ' ' + (p.unit || 'кг') : '-'}</td>
                 <td>${p.is_active ? '✅ Активен' : '❌ Неактивен'}</td>
                 <td>
-                    <button class="action-btn edit-btn" onclick='editProduct(${JSON.stringify(p).replace(/'/g, "&apos;")})' title="Изменить">✏️</button>
+                    <button class="action-btn edit-btn" onclick='editProduct(${JSON.stringify(productData)})' title="Изменить">✏️</button>
                     <button class="action-btn edit-btn" onclick="toggleProduct(${p.id}, ${!p.is_active})" title="${p.is_active ? 'Скрыть' : 'Показать'}">
                         ${p.is_active ? '👁️' : '👁️‍🗨️'}
                     </button>
                     <button class="action-btn delete-btn" onclick="deleteProduct(${p.id})" title="Удалить">🗑️</button>
                 </td>
             </tr>
-        `).join('');
+            `;
+        }).join('');
     } catch (error) {
         console.error('Ошибка:', error);
-        alert('Не удалось загрузить товары');
+        alert('Не удалось загрузить товары: ' + error.message);
     }
 }
 

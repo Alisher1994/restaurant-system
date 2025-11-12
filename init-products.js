@@ -4,9 +4,12 @@ const fs = require('fs');
 require('dotenv').config();
 
 async function initProductsTables() {
+  // Используем PUBLIC URL если internal недоступен
+  const connectionString = process.env.DATABASE_PUBLIC_URL || process.env.DATABASE_URL;
+  
   const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    connectionString: connectionString,
+    ssl: { rejectUnauthorized: false }
   });
 
   try {
