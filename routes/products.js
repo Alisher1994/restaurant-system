@@ -19,7 +19,43 @@ const upload = multer({
   }
 });
 
-// Все маршруты доступны только администратору
+// Получить фото товара (БЕЗ авторизации для отображения в HTML)
+router.get('/:id/photo', async (req, res) => {
+  try {
+    const result = await query('SELECT photo, photo_mime_type FROM products WHERE id = $1', [req.params.id]);
+    
+    if (result.rows.length === 0 || !result.rows[0].photo) {
+      return res.status(404).json({ error: 'Фото не найдено' });
+    }
+    
+    res.set('Content-Type', result.rows[0].photo_mime_type);
+    res.set('Cache-Control', 'public, max-age=31536000'); // Кэшировать на год
+    res.send(result.rows[0].photo);
+  } catch (error) {
+    console.error('Ошибка получения фото:', error);
+    res.status(500).json({ error: 'Ошибка получения фото' });
+  }
+});
+
+// Получить фото блюда из меню (ингредиенты) - БЕЗ авторизации
+router.get('/menu/:id/photo', async (req, res) => {
+  try {
+    const result = await query('SELECT photo, photo_mime_type FROM menu_items WHERE id = $1', [req.params.id]);
+    
+    if (result.rows.length === 0 || !result.rows[0].photo) {
+      return res.status(404).json({ error: 'Фото не найдено' });
+    }
+    
+    res.set('Content-Type', result.rows[0].photo_mime_type);
+    res.set('Cache-Control', 'public, max-age=31536000');
+    res.send(result.rows[0].photo);
+  } catch (error) {
+    console.error('Ошибка получения фото:', error);
+    res.status(500).json({ error: 'Ошибка получения фото' });
+  }
+});
+
+// Все остальные маршруты доступны только администратору
 router.use(authenticate, authorize('admin'));
 
 // ========== КАТЕГОРИИ ТОВАРОВ ==========
@@ -166,23 +202,6 @@ router.delete('/:id', async (req, res) => {
   } catch (error) {
     console.error('Ошибка удаления товара:', error);
     res.status(500).json({ error: 'Ошибка удаления товара' });
-  }
-});
-
-// Получить фото товара
-router.get('/:id/photo', async (req, res) => {
-  try {
-    const result = await query('SELECT photo, photo_mime_type FROM products WHERE id = $1', [req.params.id]);
-    
-    if (result.rows.length === 0 || !result.rows[0].photo) {
-      return res.status(404).json({ error: 'Фото не найдено' });
-    }
-    
-    res.set('Content-Type', result.rows[0].photo_mime_type);
-    res.send(result.rows[0].photo);
-  } catch (error) {
-    console.error('Ошибка получения фото:', error);
-    res.status(500).json({ error: 'Ошибка получения фото' });
   }
 });
 
