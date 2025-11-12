@@ -176,6 +176,102 @@
             max-height: 80vh;
             overflow-y: auto;
         }
+        
+        .modal-content.fullscreen {
+            max-width: 95vw;
+            max-height: 95vh;
+            width: 95vw;
+            height: 95vh;
+            padding: 20px;
+        }
+        
+        .modal-two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            height: calc(100% - 100px);
+        }
+        
+        .modal-column {
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .modal-column h3 {
+            margin-bottom: 15px;
+            color: #667eea;
+            font-size: 18px;
+        }
+        
+        .ingredients-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+        
+        .ingredient-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+        
+        .ingredient-search {
+            position: relative;
+        }
+        
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .search-results.active {
+            display: block;
+        }
+        
+        .search-result-item {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .search-result-item:hover {
+            background: #f0f0f0;
+        }
+        
+        .cost-calculation {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        .cost-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .cost-row.total {
+            font-weight: bold;
+            font-size: 16px;
+            border-top: 2px solid #667eea;
+            border-bottom: none;
+            margin-top: 10px;
+        }
 
         .form-group {
             margin-bottom: 20px;
@@ -373,51 +469,106 @@
 
     <!-- Модальное окно для добавления/редактирования блюда -->
     <div class="modal" id="menuModal">
-        <div class="modal-content" style="max-width: 700px;">
-            <h2 id="menuModalTitle">Добавить блюдо</h2>
+        <div class="modal-content fullscreen">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 id="menuModalTitle">Добавить блюдо</h2>
+                <button onclick="closeModal('menuModal')" style="background: none; border: none; font-size: 24px; cursor: pointer;">✕</button>
+            </div>
+            
             <form id="menuForm" enctype="multipart/form-data">
                 <input type="hidden" name="id" id="menuItemId">
-                <div class="form-group">
-                    <label>Название</label>
-                    <input type="text" name="name" id="menuItemName" required>
-                </div>
-                <div class="form-group">
-                    <label>Категория</label>
-                    <select name="category_id" id="menuItemCategory" required></select>
-                </div>
-                <div class="form-group">
-                    <label>Цена (сум)</label>
-                    <input type="number" name="price" id="menuItemPrice" step="1" required>
-                </div>
-                <div class="form-group">
-                    <label>Описание</label>
-                    <textarea name="description" id="menuItemDescription" rows="3"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Фото блюда</label>
-                    <input type="file" name="photo" id="menuItemPhoto" accept="image/*">
-                    <img id="menuItemPhotoPreview" style="max-width: 200px; margin-top: 10px; display: none;">
+                
+                <div class="modal-two-columns">
+                    <!-- Левая колонка: Основные данные -->
+                    <div class="modal-column">
+                        <h3>📝 Основные данные</h3>
+                        
+                        <div class="form-group">
+                            <label>Название блюда *</label>
+                            <input type="text" name="name" id="menuItemName" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Категория *</label>
+                            <select name="category_id" id="menuItemCategory" required></select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Описание</label>
+                            <textarea name="description" id="menuItemDescription" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Фото блюда</label>
+                            <input type="file" name="photo" id="menuItemPhoto" accept="image/*">
+                            <img id="menuItemPhotoPreview" style="max-width: 100%; max-height: 200px; margin-top: 10px; display: none; border-radius: 8px;">
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div class="form-group">
+                                <label>Себестоимость (сум)</label>
+                                <input type="number" name="cost_price" id="menuItemCostPrice" step="1" value="0" readonly style="background: #f5f5f5;">
+                                <small style="color: #999;">Рассчитывается автоматически</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Цена продажи (сум) *</label>
+                                <input type="number" name="price" id="menuItemPrice" step="1" required>
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div class="form-group">
+                                <label style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" name="active" id="menuItemActive" checked style="width: auto;">
+                                    Отображать в меню
+                                </label>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" name="in_stock" id="menuItemInStock" checked style="width: auto;">
+                                    Есть в продаже
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Правая колонка: Состав и калькуляция -->
+                    <div class="modal-column">
+                        <h3>🧮 Состав блюда и калькуляция</h3>
+                        
+                        <div class="form-group ingredient-search">
+                            <label>Поиск товара для добавления</label>
+                            <input type="text" id="ingredientSearch" placeholder="Начните вводить название товара..." autocomplete="off">
+                            <div class="search-results" id="searchResults"></div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                            <input type="number" id="ingredientQuantity" placeholder="Количество" step="0.001" style="flex: 1;">
+                            <select id="ingredientUnit" style="flex: 1;">
+                                <option value="г">г</option>
+                                <option value="кг">кг</option>
+                                <option value="мл">мл</option>
+                                <option value="л">л</option>
+                                <option value="шт">шт</option>
+                            </select>
+                            <button type="button" onclick="addIngredientFromSearch()" class="btn btn-primary">+ Добавить</button>
+                        </div>
+                        
+                        <div class="ingredients-list" id="ingredientsList"></div>
+                        
+                        <div class="cost-calculation">
+                            <h4 style="margin-bottom: 10px;">Калькуляция себестоимости:</h4>
+                            <div id="costCalculation"></div>
+                        </div>
+                    </div>
                 </div>
                 
-                <h3 style="margin-top: 20px; margin-bottom: 10px;">Состав блюда</h3>
-                <div id="ingredientsList" style="margin-bottom: 15px;"></div>
-                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                    <select id="ingredientProduct" style="flex: 2;">
-                        <option value="">Выберите товар</option>
-                    </select>
-                    <input type="number" id="ingredientQuantity" placeholder="Количество" step="0.001" style="flex: 1;">
-                    <select id="ingredientUnit" style="flex: 1;">
-                        <option value="г">г</option>
-                        <option value="кг">кг</option>
-                        <option value="мл">мл</option>
-                        <option value="л">л</option>
-                        <option value="шт">шт</option>
-                    </select>
-                    <button type="button" onclick="addIngredient()" class="btn btn-primary">+ Добавить</button>
+                <div style="display: flex; gap: 10px; margin-top: 20px; padding-top: 20px; border-top: 2px solid #e0e0e0;">
+                    <button type="submit" class="btn btn-primary" id="menuSubmitBtn" style="flex: 1;">Сохранить</button>
+                    <button type="button" class="btn" style="flex: 1; background: #ccc;" onclick="closeModal('menuModal')">Отмена</button>
                 </div>
-                
-                <button type="submit" class="btn btn-primary" id="menuSubmitBtn" style="width: 100%;">Добавить</button>
-                <button type="button" class="btn" style="width: 100%; margin-top: 10px; background: #ccc;" onclick="closeModal('menuModal')">Отмена</button>
             </form>
         </div>
     </div>
@@ -491,6 +642,6 @@
 
     <script src="/js/admin.js"></script>
     <script src="/js/products.js"></script>
-    <script src="/js/menu-ingredients.js"></script>
+    <script src="/js/menu-ingredients-new.js"></script>
 </body>
 </html>

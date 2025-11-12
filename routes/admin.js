@@ -20,7 +20,25 @@ const upload = multer({
   }
 });
 
-// Все маршруты доступны только администратору
+// Получить фото блюда (БЕЗ авторизации для отображения в HTML)
+router.get('/menu/:id/photo', async (req, res) => {
+  try {
+    const result = await query('SELECT photo, photo_mime_type FROM menu_items WHERE id = $1', [req.params.id]);
+    
+    if (result.rows.length === 0 || !result.rows[0].photo) {
+      return res.status(404).json({ error: 'Фото не найдено' });
+    }
+    
+    res.set('Content-Type', result.rows[0].photo_mime_type);
+    res.set('Cache-Control', 'public, max-age=31536000');
+    res.send(result.rows[0].photo);
+  } catch (error) {
+    console.error('Ошибка получения фото:', error);
+    res.status(500).json({ error: 'Ошибка получения фото' });
+  }
+});
+
+// Все остальные маршруты доступны только администратору
 router.use(authenticate, authorize('admin'));
 
 // ========== УПРАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯМИ ==========
@@ -169,7 +187,7 @@ router.delete('/categories/:id', async (req, res) => {
 router.get('/menu', async (req, res) => {
   try {
     const result = await query(`
-      SELECT m.id, m.name, m.description, m.price, m.active as is_active, 
+      SELECT m.id, m.name, m.description, m.price, m.cost_price, m.in_stock, m.active as is_active, 
              c.name as category_name, m.category_id,
              CASE WHEN m.photo IS NOT NULL THEN '/api/admin/menu/' || m.id || '/photo' ELSE NULL END as image_url
       FROM menu_items m 
@@ -185,7 +203,7 @@ router.get('/menu', async (req, res) => {
 
 router.post('/menu', upload.single('photo'), async (req, res) => {
   try {
-    const { category_id, name, description, price } = req.body;
+    const { category_id, name, description, price, cost_price, in_stock, active } = req.body;
     
     let photoData = null;
     let photoMimeType = null;
@@ -196,8 +214,8 @@ router.post('/menu', upload.single('photo'), async (req, res) => {
     }
     
     const result = await query(
-      'INSERT INTO menu_items (category_id, name, description, price, photo, photo_mime_type) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, name, description, price, category_id, active as is_active',
-      [category_id, name, description || '', price, photoData, photoMimeType]
+      'INSERT INTO menu_items (category_id, name, description, price, cost_price, in_stock, active, photo, photo_mime_type) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id, name, description, price, cost_price, in_stock, category_id, active as is_active',
+      [category_id, name, description || '', price, cost_price || 0, in_stock === '1' || in_stock === 'true', active === '1' || active === 'true', photoData, photoMimeType]
     );
     
     // Добавляем image_url для обратной совместимости
@@ -216,7 +234,7 @@ router.post('/menu', upload.single('photo'), async (req, res) => {
 router.put('/menu/:id', upload.single('photo'), async (req, res) => {
   try {
     const { id } = req.params;
-    const { category_id, name, description, price, is_active } = req.body;
+    const { category_id, name, description, price, cost_price, in_stock, active, is_active } = req.body;
     
     // Получаем текущие данные
     const current = await query('SELECT * FROM menu_items WHERE id = $1', [id]);
@@ -232,9 +250,13 @@ router.put('/menu/:id', upload.single('photo'), async (req, res) => {
       photoMimeType = req.file.mimetype;
     }
     
+    // Используем active, если передан, иначе is_active для обратной совместимости
+    const activeValue = active !== undefined ? (active === '1' || active === 'true') : 
+                       (is_active !== undefined ? is_active : undefined);
+    
     const result = await query(
-      'UPDATE menu_items SET category_id = COALESCE($1, category_id), name = COALESCE($2, name), description = COALESCE($3, description), price = COALESCE($4, price), photo = COALESCE($5, photo), photo_mime_type = COALESCE($6, photo_mime_type), active = COALESCE($7, active) WHERE id = $8 RETURNING id, name, description, price, category_id, active as is_active',
-      [category_id, name, description, price, photoData, photoMimeType, is_active, id]
+      'UPDATE menu_items SET category_id = COALESCE($1, category_id), name = COALESCE($2, name), description = COALESCE($3, description), price = COALESCE($4, price), cost_price = COALESCE($5, cost_price), in_stock = COALESCE($6, in_stock), photo = COALESCE($7, photo), photo_mime_type = COALESCE($8, photo_mime_type), active = COALESCE($9, active) WHERE id = $10 RETURNING id, name, description, price, cost_price, in_stock, category_id, active as is_active',
+      [category_id, name, description, price, cost_price, in_stock === '1' || in_stock === 'true', photoData, photoMimeType, activeValue, id]
     );
     
     // Добавляем image_url для обратной совместимости
@@ -257,23 +279,6 @@ router.delete('/menu/:id', async (req, res) => {
   } catch (error) {
     console.error('Ошибка удаления блюда:', error);
     res.status(500).json({ error: 'Ошибка удаления блюда' });
-  }
-});
-
-// Получить фото блюда
-router.get('/menu/:id/photo', async (req, res) => {
-  try {
-    const result = await query('SELECT photo, photo_mime_type FROM menu_items WHERE id = $1', [req.params.id]);
-    
-    if (result.rows.length === 0 || !result.rows[0].photo) {
-      return res.status(404).json({ error: 'Фото не найдено' });
-    }
-    
-    res.set('Content-Type', result.rows[0].photo_mime_type);
-    res.send(result.rows[0].photo);
-  } catch (error) {
-    console.error('Ошибка получения фото:', error);
-    res.status(500).json({ error: 'Ошибка получения фото' });
   }
 });
 
