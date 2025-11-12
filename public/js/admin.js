@@ -315,7 +315,9 @@ document.getElementById('userForm').addEventListener('submit', async (e) => {
 
 
 // Обработчик формы добавления/редактирования категории
-document.getElementById('categoryForm').addEventListener('submit', async (e) => {
+const categoryForm = document.getElementById('categoryForm');
+if (categoryForm) {
+    categoryForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
     const formData = new FormData(e.target);
@@ -359,6 +361,7 @@ document.getElementById('categoryForm').addEventListener('submit', async (e) => 
         alert(error.message);
     }
 });
+}
 
 // Удаление пользователя
 async function deleteUser(id) {

@@ -73,6 +73,7 @@ async function showAddProduct() {
     const categories = await response.json();
     
     const select = document.getElementById('productCategory');
+    if (!select) return;
     select.innerHTML = categories
         .filter(c => c.is_active)
         .map(c => `<option value="${c.id}">${c.name}</option>`)
@@ -94,6 +95,7 @@ async function editProduct(product) {
     const categories = await response.json();
     
     const select = document.getElementById('productCategory');
+    if (!select) return;
     select.innerHTML = categories
         .map(c => `<option value="${c.id}">${c.name}</option>`)
         .join('');
@@ -121,7 +123,9 @@ async function editProduct(product) {
 }
 
 // Обработчик формы добавления/редактирования товара
-document.getElementById('productForm').addEventListener('submit', async (e) => {
+const productForm = document.getElementById('productForm');
+if (productForm) {
+    productForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
     const productId = document.getElementById('productId').value;
@@ -167,6 +171,7 @@ document.getElementById('productForm').addEventListener('submit', async (e) => {
         alert(error.message);
     }
 });
+}
 
 // Предпросмотр фото товара
 document.getElementById('productPhoto').addEventListener('change', function(e) {
