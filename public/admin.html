@@ -606,6 +606,104 @@
         </div>
     </div>
 
+    
+    <!-- Модальное окно для добавления/редактирования товара -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <h2 id="productModalTitle">Добавить товар</h2>
+            <form id="productForm">
+                <input type="hidden" id="productId">
+                
+                <!-- Фото товара -->
+                <div class="form-group">
+                    <label>Фото товара</label>
+                    <div style="width: 150px; height: 150px; border: 2px dashed #ccc; border-radius: 8px; cursor: pointer; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f9f9f9; margin-bottom: 15px;" onclick="document.getElementById('productPhoto').click()">
+                        <img id="productPhotoPreview" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                        <span style="color: #999; text-align: center; font-size: 14px;" id="productPhotoPlaceholder">Нажмите для выбора фото</span>
+                    </div>
+                    <input type="file" id="productPhoto" accept="image/*" style="display: none;">
+                </div>
+
+                <div class="form-group">
+                    <label>Категория</label>
+                    <select id="productCategory" required>
+                        <option value="">Выберите категорию</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Название товара</label>
+                    <input type="text" id="productName" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Штрих-код</label>
+                    <input type="text" id="productBarcode">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label>Нетто (г)</label>
+                        <input type="number" id="productNetto" step="0.001">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Брутто (г)</label>
+                        <input type="number" id="productBrutto" step="0.001">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Единица измерения</label>
+                    <select id="productUnit">
+                        <option value="кг">кг</option>
+                        <option value="г">г</option>
+                        <option value="л">л</option>
+                        <option value="мл">мл</option>
+                        <option value="шт">шт</option>
+                    </select>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label>Цена за единицу (сум)</label>
+                        <input type="number" id="productUnitPrice" step="1">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Количество</label>
+                        <input type="number" id="productQuantity" step="0.001">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn btn-primary" id="productSubmitBtn">Добавить</button>
+                    <button type="button" class="btn" onclick="closeModal('productModal')">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно для добавления/редактирования категории товаров -->
+    <div class="modal" id="categoryModal">
+        <div class="modal-content">
+            <h2 id="categoryModalTitle">Добавить категорию</h2>
+            <form id="categoryForm">
+                <input type="hidden" id="categoryId">
+                
+                <div class="form-group">
+                    <label>Название категории</label>
+                    <input type="text" id="categoryName" required>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn btn-primary" id="categorySubmitBtn">Добавить</button>
+                    <button type="button" class="btn" onclick="closeModal('categoryModal')">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="/js/admin.js"></script>
     <script src="/js/products.js"></script>
     <script src="/js/menu-ingredients-new.js"></script>
