@@ -597,7 +597,6 @@ document.getElementById('userForm').addEventListener('submit', async (e) => {
 
 
 // Обработчик формы добавления/редактирования категории
-const API_URL = window.location.origin + '/api';
 // Проверка авторизации
 if (!token || user.role !== 'admin') {
     window.location.href = '/';
