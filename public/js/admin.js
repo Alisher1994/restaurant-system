@@ -98,6 +98,9 @@ async function loadUsers() {
                 <td>${getRoleName(u.role)}</td>
                 <td>${u.is_active ? '✅ Активен' : '❌ Неактивен'}</td>
                 <td>
+                    <button class="action-btn edit-btn" onclick="toggleUserStatus(${u.id}, ${!u.is_active})">
+                        ${u.is_active ? 'Деактивировать' : 'Активировать'}
+                    </button>
                     <button class="action-btn delete-btn" onclick="deleteUser(${u.id})">Удалить</button>
                 </td>
             </tr>
@@ -334,6 +337,40 @@ async function deleteUser(id) {
         if (!response.ok) throw new Error('Ошибка удаления пользователя');
         
         alert('Пользователь удален');
+        loadUsers();
+    } catch (error) {
+        console.error('Ошибка:', error);
+        alert(error.message);
+    }
+}
+
+// Переключение статуса пользователя
+async function toggleUserStatus(id, isActive) {
+    try {
+        // Сначала получаем данные пользователя
+        const usersResponse = await fetch(`${API_URL}/admin/users`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const users = await usersResponse.json();
+        const user = users.find(u => u.id === id);
+        
+        if (!user) throw new Error('Пользователь не найден');
+        
+        const response = await fetch(`${API_URL}/admin/users/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                full_name: user.full_name,
+                role: user.role,
+                is_active: isActive
+            })
+        });
+        
+        if (!response.ok) throw new Error('Ошибка обновления статуса');
+        
         loadUsers();
     } catch (error) {
         console.error('Ошибка:', error);

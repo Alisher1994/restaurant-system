@@ -14,7 +14,7 @@ router.use(authenticate, authorize('admin'));
 router.get('/users', async (req, res) => {
   try {
     const result = await query(
-      'SELECT id, username, full_name, role, active, created_at FROM users ORDER BY created_at DESC'
+      'SELECT id, username, full_name, role, active as is_active, created_at FROM users ORDER BY created_at DESC'
     );
     res.json(result.rows);
   } catch (error) {
@@ -35,7 +35,7 @@ router.post('/users', async (req, res) => {
     const password_hash = await bcrypt.hash(password, 10);
 
     const result = await query(
-      'INSERT INTO users (username, password_hash, full_name, role) VALUES ($1, $2, $3, $4) RETURNING id, username, full_name, role, active',
+      'INSERT INTO users (username, password_hash, full_name, role) VALUES ($1, $2, $3, $4) RETURNING id, username, full_name, role, active as is_active',
       [username, password_hash, full_name, role]
     );
 
@@ -53,10 +53,10 @@ router.post('/users', async (req, res) => {
 router.put('/users/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { full_name, role, active, password } = req.body;
+    const { full_name, role, is_active, password } = req.body;
 
     let updateQuery = 'UPDATE users SET full_name = $1, role = $2, active = $3';
-    const params = [full_name, role, active];
+    const params = [full_name, role, is_active];
 
     if (password) {
       const password_hash = await bcrypt.hash(password, 10);
@@ -64,7 +64,7 @@ router.put('/users/:id', async (req, res) => {
       params.push(password_hash);
     }
 
-    updateQuery += ' WHERE id = $' + (params.length + 1) + ' RETURNING id, username, full_name, role, active';
+    updateQuery += ' WHERE id = $' + (params.length + 1) + ' RETURNING id, username, full_name, role, active as is_active';
     params.push(id);
 
     const result = await query(updateQuery, params);
