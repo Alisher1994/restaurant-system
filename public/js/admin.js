@@ -19,22 +19,6 @@ function logout() {
 }
 
 // Переключение вкладок
-function switchTab(tabName) {
-    // Убрать активный класс со всех вкладок
-    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-    document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
-
-    // Добавить активный класс к выбранной вкладке
-    event.target.classList.add('active');
-    document.getElementById(tabName + '-section').classList.add('active');
-
-    // Загрузить данные для вкладки
-    if (tabName === 'stats') loadStats();
-    if (tabName === 'users') loadUsers();
-    if (tabName === 'products') loadProducts();
-    if (tabName === 'menu') loadMenu();
-    if (tabName === 'categories') loadCategories();
-}
 
 // Загрузка статистики
 async function loadStats() {
@@ -332,22 +316,6 @@ function logout() {
 }
 
 // Переключение вкладок
-function switchTab(tabName) {
-    // Убрать активный класс со всех вкладок
-    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-    document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
-
-    // Добавить активный класс к выбранной вкладке
-    event.target.classList.add('active');
-    document.getElementById(tabName + '-section').classList.add('active');
-
-    // Загрузить данные для вкладки
-    if (tabName === 'stats') loadStats();
-    if (tabName === 'users') loadUsers();
-    if (tabName === 'products') loadProducts();
-    if (tabName === 'menu') loadMenu();
-    if (tabName === 'categories') loadCategories();
-}
 
 // Загрузка статистики
 async function loadStats() {
@@ -646,22 +614,6 @@ function logout() {
 }
 
 // Переключение вкладок
-function switchTab(tabName) {
-    // Убрать активный класс со всех вкладок
-    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-    document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
-
-    // Добавить активный класс к выбранной вкладке
-    event.target.classList.add('active');
-    document.getElementById(tabName + '-section').classList.add('active');
-
-    // Загрузить данные для вкладки
-    if (tabName === 'stats') loadStats();
-    if (tabName === 'users') loadUsers();
-    if (tabName === 'products') loadProducts();
-    if (tabName === 'menu') loadMenu();
-    if (tabName === 'categories') loadCategories();
-}
 
 // Загрузка статистики
 async function loadStats() {
@@ -1161,21 +1113,34 @@ async function toggleCategory(id, isActive) {
 }
 
 // Загрузка статистики при открытии страницы
+// Переключение вкладок
+function switchTab(tabName) {
+    // Скрыть все вкладки
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
+    
+    // Активировать выбранную вкладку по индексу
+    const tabs = Array.from(document.querySelectorAll('.tab'));
+    const tabNames = ['stats', 'users', 'products', 'menu', 'categories'];
+    const tabIndex = tabNames.indexOf(tabName);
+    if (tabIndex !== -1 && tabs[tabIndex]) {
+        tabs[tabIndex].classList.add('active');
+    }
+    
+    // Активировать соответствующую секцию
+    const selectedSection = document.getElementById(tabName + '-section');
+    if (selectedSection) selectedSection.classList.add('active');
+    
+    // Загружаем данные для вкладки
+    if (tabName === 'stats') loadStats();
+    if (tabName === 'users') loadUsers();
+    if (tabName === 'products') loadProducts();
+    if (tabName === 'menu') loadMenu();
+    if (tabName === 'categories') loadCategories();
+}
+
 loadStats();
 
 
 
-// ������������ �������
-function switchTab(tabName) {
-    // ������ ��� �������
-    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-    document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
-    
-    // ������������ ��������� �������
-    const selectedTab = document.querySelector([onclick="switchTab('')"]);
-    if (selectedTab) selectedTab.classList.add('active');
-    
-    // ������������ ��������������� ������
-    const selectedSection = document.getElementById(tabName + '-section');
-    if (selectedSection) selectedSection.classList.add('active');
-}
+// ������������ �������
