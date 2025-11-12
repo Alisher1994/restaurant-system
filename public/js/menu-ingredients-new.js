@@ -21,7 +21,10 @@ async function showAddMenuItem() {
     document.getElementById('menuItemId').value = '';
     document.getElementById('menuModalTitle').textContent = 'Добавить блюдо';
     document.getElementById('menuSubmitBtn').textContent = 'Сохранить';
-    document.getElementById('menuItemPhotoPreview').style.display = 'none';
+    const preview = document.getElementById('menuItemPhotoPreview');
+    const photoBox = preview.closest('[onclick]');
+    preview.style.display = 'none';
+    if (photoBox) photoBox.classList.remove('has-photo');
     const placeholder = document.getElementById('photoPlaceholder');
     if (placeholder) placeholder.style.display = 'block';
     document.getElementById('menuItemCostPrice').value = '0';
@@ -66,14 +69,19 @@ async function editMenuItem(item) {
     // Показать текущее фото
     if (item.image_url) {
         const preview = document.getElementById('menuItemPhotoPreview');
+        const photoBox = preview.closest('[onclick]');
         preview.src = item.image_url;
         preview.style.display = 'block';
+        if (photoBox) photoBox.classList.add('has-photo');
         const placeholder = document.getElementById('photoPlaceholder');
         if (placeholder) placeholder.style.display = 'none';
     } else {
-        document.getElementById('menuItemPhotoPreview').style.display = 'none';
-        const placeholder = document.getElementById('photoPlaceholder');
-        if (placeholder) placeholder.style.display = 'block';
+        const preview = document.getElementById('menuItemPhotoPreview');
+    const photoBox = preview.closest('[onclick]');
+    preview.style.display = 'none';
+    if (photoBox) photoBox.classList.remove('has-photo');
+    const placeholder = document.getElementById('photoPlaceholder');
+    if (placeholder) placeholder.style.display = 'block';
     }
     
     document.getElementById('menuModalTitle').textContent = 'Редактировать блюдо';
@@ -277,8 +285,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const preview = document.getElementById('menuItemPhotoPreview');
+                    const photoBox = preview.closest('[onclick]');
                     preview.src = e.target.result;
                     preview.style.display = 'block';
+                    if (photoBox) photoBox.classList.add('has-photo');
                     const placeholder = document.getElementById('photoPlaceholder');
                     if (placeholder) placeholder.style.display = 'none';
                 };
