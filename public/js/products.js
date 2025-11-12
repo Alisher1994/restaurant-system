@@ -495,3 +495,5 @@ async function deleteProduct(id) {
         alert(error.message);
     }
 }
+
+

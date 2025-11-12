@@ -1,4 +1,4 @@
-const API_URL = window.location.origin + '/api';
+ccconst API_URL = window.location.origin + '/api';
 const token = localStorage.getItem('token');
 const user = JSON.parse(localStorage.getItem('user') || '{}');
 const categoryForm = document.getElementById('categoryForm');
@@ -629,7 +629,7 @@ document.getElementById('userForm').addEventListener('submit', async (e) => {
 
 
 // Обработчик формы добавления/редактирования категории
-onst API_URL = window.location.origin + '/api';
+const API_URL = window.location.origin + '/api';
 // Проверка авторизации
 if (!token || user.role !== 'admin') {
     window.location.href = '/';
@@ -1162,3 +1162,5 @@ async function toggleCategory(id, isActive) {
 
 // Загрузка статистики при открытии страницы
 loadStats();
+
+
