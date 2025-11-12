@@ -127,11 +127,15 @@ async function loadMenu() {
         tbody.innerHTML = items.map(item => `
             <tr>
                 <td>${item.id}</td>
-                <td>${item.name}</td>
+                <td>
+                    ${item.image_url ? `<img src="${item.image_url}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px; margin-right: 10px;">` : ''}
+                    ${item.name}
+                </td>
                 <td>${item.category_name || '-'}</td>
                 <td>${parseFloat(item.price).toFixed(0)} сум</td>
                 <td>${item.is_active ? '✅ Активно' : '❌ Неактивно'}</td>
                 <td>
+                    <button class="action-btn edit-btn" onclick='editMenuItem(${JSON.stringify(item).replace(/'/g, "&apos;")})' title="Изменить">✏️</button>
                     <button class="action-btn edit-btn" onclick="toggleMenuItem(${item.id}, ${!item.is_active})" title="${item.is_active ? 'Скрыть' : 'Показать'}">
                         ${item.is_active ? '👁️' : '👁️‍🗨️'}
                     </button>
@@ -164,6 +168,7 @@ async function loadCategories() {
                 <td>${cat.display_order}</td>
                 <td>${cat.is_active ? '✅ Активна' : '❌ Неактивна'}</td>
                 <td>
+                    <button class="action-btn edit-btn" onclick='editCategory(${JSON.stringify(cat)})' title="Изменить">✏️</button>
                     <button class="action-btn edit-btn" onclick="toggleCategory(${cat.id}, ${!cat.is_active})" title="${cat.is_active ? 'Скрыть' : 'Показать'}">
                         ${cat.is_active ? '👁️' : '👁️‍🗨️'}
                     </button>
@@ -182,7 +187,7 @@ async function loadCategories() {
 
 // Обновление селекта категорий
 function updateCategorySelect(categories) {
-    const select = document.getElementById('menuCategorySelect');
+    const select = document.getElementById('menuItemCategory');
     select.innerHTML = categories
         .filter(c => c.is_active)
         .map(c => `<option value="${c.id}">${c.name}</option>`)
@@ -240,12 +245,49 @@ async function showAddMenuItem() {
     updateCategorySelect(categories);
     
     document.getElementById('menuForm').reset();
+    document.getElementById('menuItemId').value = '';
+    document.getElementById('menuModalTitle').textContent = 'Добавить блюдо';
+    document.getElementById('menuSubmitBtn').textContent = 'Добавить';
+    document.getElementById('menuModal').classList.add('active');
+}
+
+// Редактировать блюдо
+async function editMenuItem(item) {
+    const response = await fetch(`${API_URL}/admin/categories`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const categories = await response.json();
+    updateCategorySelect(categories);
+    
+    document.getElementById('menuItemId').value = item.id;
+    document.getElementById('menuItemName').value = item.name;
+    document.getElementById('menuItemCategory').value = item.category_id;
+    document.getElementById('menuItemPrice').value = item.price;
+    document.getElementById('menuItemDescription').value = item.description || '';
+    document.getElementById('menuItemImageUrl').value = item.image_url || '';
+    
+    document.getElementById('menuModalTitle').textContent = 'Редактировать блюдо';
+    document.getElementById('menuSubmitBtn').textContent = 'Сохранить';
     document.getElementById('menuModal').classList.add('active');
 }
 
 // Показать модальное окно добавления категории
 function showAddCategory() {
     document.getElementById('categoryForm').reset();
+    document.getElementById('categoryId').value = '';
+    document.getElementById('categoryModalTitle').textContent = 'Добавить категорию';
+    document.getElementById('categorySubmitBtn').textContent = 'Добавить';
+    document.getElementById('categoryModal').classList.add('active');
+}
+
+// Редактировать категорию
+function editCategory(category) {
+    document.getElementById('categoryId').value = category.id;
+    document.getElementById('categoryName').value = category.name;
+    document.getElementById('categoryDisplayOrder').value = category.display_order;
+    
+    document.getElementById('categoryModalTitle').textContent = 'Редактировать категорию';
+    document.getElementById('categorySubmitBtn').textContent = 'Сохранить';
     document.getElementById('categoryModal').classList.add('active');
 }
 
@@ -306,16 +348,31 @@ document.getElementById('userForm').addEventListener('submit', async (e) => {
     }
 });
 
-// Обработчик формы добавления блюда
+// Обработчик формы добавления/редактирования блюда
 document.getElementById('menuForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData);
+    const menuItemId = data.id;
+    delete data.id;
+    
+    // При редактировании добавляем is_active
+    if (menuItemId) {
+        const menuResponse = await fetch(`${API_URL}/admin/menu`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const menuItems = await menuResponse.json();
+        const currentItem = menuItems.find(m => m.id == menuItemId);
+        data.is_active = currentItem.is_active;
+    }
     
     try {
-        const response = await fetch(`${API_URL}/admin/menu`, {
-            method: 'POST',
+        const url = menuItemId ? `${API_URL}/admin/menu/${menuItemId}` : `${API_URL}/admin/menu`;
+        const method = menuItemId ? 'PUT' : 'POST';
+        
+        const response = await fetch(url, {
+            method: method,
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
@@ -325,10 +382,10 @@ document.getElementById('menuForm').addEventListener('submit', async (e) => {
         
         if (!response.ok) {
             const error = await response.json();
-            throw new Error(error.message || 'Ошибка добавления блюда');
+            throw new Error(error.message || 'Ошибка сохранения блюда');
         }
         
-        alert('Блюдо успешно добавлено');
+        alert(menuItemId ? 'Блюдо успешно обновлено' : 'Блюдо успешно добавлено');
         closeModal('menuModal');
         loadMenu();
     } catch (error) {
@@ -337,16 +394,31 @@ document.getElementById('menuForm').addEventListener('submit', async (e) => {
     }
 });
 
-// Обработчик формы добавления категории
+// Обработчик формы добавления/редактирования категории
 document.getElementById('categoryForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData);
+    const categoryId = data.id;
+    delete data.id;
+    
+    // При редактировании добавляем is_active
+    if (categoryId) {
+        const categoriesResponse = await fetch(`${API_URL}/admin/categories`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const categories = await categoriesResponse.json();
+        const currentCategory = categories.find(c => c.id == categoryId);
+        data.is_active = currentCategory.is_active;
+    }
     
     try {
-        const response = await fetch(`${API_URL}/admin/categories`, {
-            method: 'POST',
+        const url = categoryId ? `${API_URL}/admin/categories/${categoryId}` : `${API_URL}/admin/categories`;
+        const method = categoryId ? 'PUT' : 'POST';
+        
+        const response = await fetch(url, {
+            method: method,
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
@@ -356,10 +428,10 @@ document.getElementById('categoryForm').addEventListener('submit', async (e) => 
         
         if (!response.ok) {
             const error = await response.json();
-            throw new Error(error.message || 'Ошибка добавления категории');
+            throw new Error(error.message || 'Ошибка сохранения категории');
         }
         
-        alert('Категория успешно добавлена');
+        alert(categoryId ? 'Категория успешно обновлена' : 'Категория успешно добавлена');
         closeModal('categoryModal');
         loadCategories();
     } catch (error) {
@@ -465,16 +537,35 @@ async function deleteCategory(id) {
 // Переключение статуса блюда
 async function toggleMenuItem(id, isActive) {
     try {
+        // Получаем данные блюда
+        const menuResponse = await fetch(`${API_URL}/admin/menu`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const menuItems = await menuResponse.json();
+        const menuItem = menuItems.find(m => m.id === id);
+        
+        if (!menuItem) throw new Error('Блюдо не найдено');
+        
         const response = await fetch(`${API_URL}/admin/menu/${id}`, {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ is_active: isActive })
+            body: JSON.stringify({
+                name: menuItem.name,
+                category_id: menuItem.category_id,
+                description: menuItem.description,
+                price: menuItem.price,
+                image_url: menuItem.image_url,
+                is_active: isActive
+            })
         });
         
-        if (!response.ok) throw new Error('Ошибка обновления блюда');
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Ошибка обновления блюда');
+        }
         
         loadMenu();
     } catch (error) {
@@ -486,16 +577,32 @@ async function toggleMenuItem(id, isActive) {
 // Переключение статуса категории
 async function toggleCategory(id, isActive) {
     try {
+        // Получаем данные категории
+        const categoriesResponse = await fetch(`${API_URL}/admin/categories`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const categories = await categoriesResponse.json();
+        const category = categories.find(c => c.id === id);
+        
+        if (!category) throw new Error('Категория не найдена');
+        
         const response = await fetch(`${API_URL}/admin/categories/${id}`, {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ is_active: isActive })
+            body: JSON.stringify({
+                name: category.name,
+                display_order: category.display_order,
+                is_active: isActive
+            })
         });
         
-        if (!response.ok) throw new Error('Ошибка обновления категории');
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Ошибка обновления категории');
+        }
         
         loadCategories();
     } catch (error) {

@@ -346,47 +346,53 @@
         </div>
     </div>
 
-    <!-- Модальное окно для добавления блюда -->
+    <!-- Модальное окно для добавления/редактирования блюда -->
     <div class="modal" id="menuModal">
         <div class="modal-content">
-            <h2>Добавить блюдо</h2>
+            <h2 id="menuModalTitle">Добавить блюдо</h2>
             <form id="menuForm">
+                <input type="hidden" name="id" id="menuItemId">
                 <div class="form-group">
                     <label>Название</label>
-                    <input type="text" name="name" required>
+                    <input type="text" name="name" id="menuItemName" required>
                 </div>
                 <div class="form-group">
                     <label>Категория</label>
-                    <select name="category_id" id="menuCategorySelect" required></select>
+                    <select name="category_id" id="menuItemCategory" required></select>
                 </div>
                 <div class="form-group">
                     <label>Цена (сум)</label>
-                    <input type="number" name="price" step="1" required>
+                    <input type="number" name="price" id="menuItemPrice" step="1" required>
                 </div>
                 <div class="form-group">
                     <label>Описание</label>
-                    <textarea name="description" rows="3"></textarea>
+                    <textarea name="description" id="menuItemDescription" rows="3"></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Добавить</button>
+                <div class="form-group">
+                    <label>URL фото</label>
+                    <input type="url" name="image_url" id="menuItemImageUrl" placeholder="https://example.com/photo.jpg">
+                </div>
+                <button type="submit" class="btn btn-primary" id="menuSubmitBtn" style="width: 100%;">Добавить</button>
                 <button type="button" class="btn" style="width: 100%; margin-top: 10px; background: #ccc;" onclick="closeModal('menuModal')">Отмена</button>
             </form>
         </div>
     </div>
 
-    <!-- Модальное окно для добавления категории -->
+    <!-- Модальное окно для добавления/редактирования категории -->
     <div class="modal" id="categoryModal">
         <div class="modal-content">
-            <h2>Добавить категорию</h2>
+            <h2 id="categoryModalTitle">Добавить категорию</h2>
             <form id="categoryForm">
+                <input type="hidden" name="id" id="categoryId">
                 <div class="form-group">
                     <label>Название</label>
-                    <input type="text" name="name" required>
+                    <input type="text" name="name" id="categoryName" required>
                 </div>
                 <div class="form-group">
                     <label>Порядок отображения</label>
-                    <input type="number" name="display_order" value="0">
+                    <input type="number" name="display_order" id="categoryDisplayOrder" value="0">
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Добавить</button>
+                <button type="submit" class="btn btn-primary" id="categorySubmitBtn" style="width: 100%;">Добавить</button>
                 <button type="button" class="btn" style="width: 100%; margin-top: 10px; background: #ccc;" onclick="closeModal('categoryModal')">Отмена</button>
             </form>
         </div>

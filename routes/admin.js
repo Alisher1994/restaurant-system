@@ -97,9 +97,10 @@ router.delete('/users/:id', async (req, res) => {
 // Категории
 router.get('/categories', async (req, res) => {
   try {
-    const result = await query('SELECT * FROM categories ORDER BY display_order, name');
+    const result = await query('SELECT id, name, display_order, active as is_active FROM categories ORDER BY display_order, name');
     res.json(result.rows);
   } catch (error) {
+    console.error('Ошибка получения категорий:', error);
     res.status(500).json({ error: 'Ошибка получения категорий' });
   }
 });
@@ -108,11 +109,12 @@ router.post('/categories', async (req, res) => {
   try {
     const { name, display_order } = req.body;
     const result = await query(
-      'INSERT INTO categories (name, display_order) VALUES ($1, $2) RETURNING *',
+      'INSERT INTO categories (name, display_order) VALUES ($1, $2) RETURNING id, name, display_order, active as is_active',
       [name, display_order || 0]
     );
     res.status(201).json(result.rows[0]);
   } catch (error) {
+    console.error('Ошибка создания категории:', error);
     res.status(500).json({ error: 'Ошибка создания категории' });
   }
 });
@@ -120,13 +122,20 @@ router.post('/categories', async (req, res) => {
 router.put('/categories/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, display_order, active } = req.body;
+    const { name, display_order, is_active } = req.body;
+    
     const result = await query(
-      'UPDATE categories SET name = $1, display_order = $2, active = $3 WHERE id = $4 RETURNING *',
-      [name, display_order, active, id]
+      'UPDATE categories SET name = COALESCE($1, name), display_order = COALESCE($2, display_order), active = COALESCE($3, active) WHERE id = $4 RETURNING id, name, display_order, active as is_active',
+      [name, display_order, is_active, id]
     );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Категория не найдена' });
+    }
+    
     res.json(result.rows[0]);
   } catch (error) {
+    console.error('Ошибка обновления категории:', error);
     res.status(500).json({ error: 'Ошибка обновления категории' });
   }
 });
@@ -136,7 +145,70 @@ router.delete('/categories/:id', async (req, res) => {
     await query('DELETE FROM categories WHERE id = $1', [req.params.id]);
     res.json({ message: 'Категория удалена' });
   } catch (error) {
+    console.error('Ошибка удаления категории:', error);
     res.status(500).json({ error: 'Ошибка удаления категории' });
+  }
+});
+
+// Позиции меню (дублируем для совместимости)
+router.get('/menu', async (req, res) => {
+  try {
+    const result = await query(`
+      SELECT m.id, m.name, m.description, m.price, m.image_url, m.active as is_active, 
+             c.name as category_name, m.category_id
+      FROM menu_items m 
+      LEFT JOIN categories c ON m.category_id = c.id 
+      ORDER BY c.display_order, m.name
+    `);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Ошибка получения меню:', error);
+    res.status(500).json({ error: 'Ошибка получения меню' });
+  }
+});
+
+router.post('/menu', async (req, res) => {
+  try {
+    const { category_id, name, description, price, image_url } = req.body;
+    const result = await query(
+      'INSERT INTO menu_items (category_id, name, description, price, image_url) VALUES ($1, $2, $3, $4, $5) RETURNING id, name, description, price, image_url, category_id, active as is_active',
+      [category_id, name, description || '', price, image_url || '']
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error('Ошибка создания блюда:', error);
+    res.status(500).json({ error: 'Ошибка создания блюда' });
+  }
+});
+
+router.put('/menu/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { category_id, name, description, price, image_url, is_active } = req.body;
+    
+    const result = await query(
+      'UPDATE menu_items SET category_id = COALESCE($1, category_id), name = COALESCE($2, name), description = COALESCE($3, description), price = COALESCE($4, price), image_url = COALESCE($5, image_url), active = COALESCE($6, active) WHERE id = $7 RETURNING id, name, description, price, image_url, category_id, active as is_active',
+      [category_id, name, description, price, image_url, is_active, id]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Блюдо не найдено' });
+    }
+    
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Ошибка обновления блюда:', error);
+    res.status(500).json({ error: 'Ошибка обновления блюда' });
+  }
+});
+
+router.delete('/menu/:id', async (req, res) => {
+  try {
+    await query('DELETE FROM menu_items WHERE id = $1', [req.params.id]);
+    res.json({ message: 'Блюдо удалено' });
+  } catch (error) {
+    console.error('Ошибка удаления блюда:', error);
+    res.status(500).json({ error: 'Ошибка удаления блюда' });
   }
 });
 
