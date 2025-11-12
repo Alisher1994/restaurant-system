@@ -236,42 +236,6 @@ function editUser(user) {
     document.getElementById('userModal').classList.add('active');
 }
 
-// Показать модальное окно добавления блюда
-async function showAddMenuItem() {
-    // Загрузить категории для селекта
-    const response = await fetch(`${API_URL}/admin/categories`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
-    const categories = await response.json();
-    updateCategorySelect(categories);
-    
-    document.getElementById('menuForm').reset();
-    document.getElementById('menuItemId').value = '';
-    document.getElementById('menuModalTitle').textContent = 'Добавить блюдо';
-    document.getElementById('menuSubmitBtn').textContent = 'Добавить';
-    document.getElementById('menuModal').classList.add('active');
-}
-
-// Редактировать блюдо
-async function editMenuItem(item) {
-    const response = await fetch(`${API_URL}/admin/categories`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
-    const categories = await response.json();
-    updateCategorySelect(categories);
-    
-    document.getElementById('menuItemId').value = item.id;
-    document.getElementById('menuItemName').value = item.name;
-    document.getElementById('menuItemCategory').value = item.category_id;
-    document.getElementById('menuItemPrice').value = item.price;
-    document.getElementById('menuItemDescription').value = item.description || '';
-    document.getElementById('menuItemImageUrl').value = item.image_url || '';
-    
-    document.getElementById('menuModalTitle').textContent = 'Редактировать блюдо';
-    document.getElementById('menuSubmitBtn').textContent = 'Сохранить';
-    document.getElementById('menuModal').classList.add('active');
-}
-
 // Показать модальное окно добавления категории
 function showAddCategory() {
     document.getElementById('categoryForm').reset();
@@ -349,51 +313,6 @@ document.getElementById('userForm').addEventListener('submit', async (e) => {
     }
 });
 
-// Обработчик формы добавления/редактирования блюда
-document.getElementById('menuForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData);
-    const menuItemId = data.id;
-    delete data.id;
-    
-    // При редактировании добавляем is_active
-    if (menuItemId) {
-        const menuResponse = await fetch(`${API_URL}/admin/menu`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const menuItems = await menuResponse.json();
-        const currentItem = menuItems.find(m => m.id == menuItemId);
-        data.is_active = currentItem.is_active;
-    }
-    
-    try {
-        const url = menuItemId ? `${API_URL}/admin/menu/${menuItemId}` : `${API_URL}/admin/menu`;
-        const method = menuItemId ? 'PUT' : 'POST';
-        
-        const response = await fetch(url, {
-            method: method,
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        });
-        
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Ошибка сохранения блюда');
-        }
-        
-        alert(menuItemId ? 'Блюдо успешно обновлено' : 'Блюдо успешно добавлено');
-        closeModal('menuModal');
-        loadMenu();
-    } catch (error) {
-        console.error('Ошибка:', error);
-        alert(error.message);
-    }
-});
 
 // Обработчик формы добавления/редактирования категории
 document.getElementById('categoryForm').addEventListener('submit', async (e) => {
