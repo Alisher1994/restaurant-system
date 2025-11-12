@@ -98,7 +98,8 @@ async function loadUsers() {
                 <td>${getRoleName(u.role)}</td>
                 <td>${u.is_active ? '✅ Активен' : '❌ Неактивен'}</td>
                 <td>
-                    <button class="action-btn edit-btn" onclick="toggleUserStatus(${u.id}, ${!u.is_active})">
+                    <button class="action-btn edit-btn" onclick='editUser(${JSON.stringify(u)})'>Изменить</button>
+                    <button class="action-btn ${u.is_active ? 'delete-btn' : 'edit-btn'}" onclick="toggleUserStatus(${u.id}, ${!u.is_active})">
                         ${u.is_active ? 'Деактивировать' : 'Активировать'}
                     </button>
                     <button class="action-btn delete-btn" onclick="deleteUser(${u.id})">Удалить</button>
@@ -204,6 +205,28 @@ function getRoleName(role) {
 // Показать модальное окно добавления пользователя
 function showAddUser() {
     document.getElementById('userForm').reset();
+    document.getElementById('userId').value = '';
+    document.getElementById('userModalTitle').textContent = 'Добавить пользователя';
+    document.getElementById('userSubmitBtn').textContent = 'Создать';
+    document.getElementById('userUsername').readOnly = false;
+    document.getElementById('userPassword').required = true;
+    document.getElementById('passwordHint').style.display = 'none';
+    document.getElementById('userModal').classList.add('active');
+}
+
+// Показать модальное окно редактирования пользователя
+function editUser(user) {
+    document.getElementById('userId').value = user.id;
+    document.getElementById('userUsername').value = user.username;
+    document.getElementById('userPassword').value = '';
+    document.getElementById('userFullName').value = user.full_name;
+    document.getElementById('userRole').value = user.role;
+    
+    document.getElementById('userModalTitle').textContent = 'Редактировать пользователя';
+    document.getElementById('userSubmitBtn').textContent = 'Сохранить';
+    document.getElementById('userUsername').readOnly = true;
+    document.getElementById('userPassword').required = false;
+    document.getElementById('passwordHint').style.display = 'inline';
     document.getElementById('userModal').classList.add('active');
 }
 
@@ -231,16 +254,37 @@ function closeModal(modalId) {
     document.getElementById(modalId).classList.remove('active');
 }
 
-// Обработчик формы добавления пользователя
+// Обработчик формы добавления/редактирования пользователя
 document.getElementById('userForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData);
+    const userId = data.id;
+    
+    // Удаляем пустой пароль при редактировании
+    if (userId && !data.password) {
+        delete data.password;
+    }
+    
+    delete data.id; // Удаляем id из данных
     
     try {
-        const response = await fetch(`${API_URL}/admin/users`, {
-            method: 'POST',
+        const url = userId ? `${API_URL}/admin/users/${userId}` : `${API_URL}/admin/users`;
+        const method = userId ? 'PUT' : 'POST';
+        
+        // При редактировании нужно добавить is_active
+        if (userId) {
+            const usersResponse = await fetch(`${API_URL}/admin/users`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const users = await usersResponse.json();
+            const currentUser = users.find(u => u.id == userId);
+            data.is_active = currentUser.is_active;
+        }
+        
+        const response = await fetch(url, {
+            method: method,
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
@@ -250,10 +294,10 @@ document.getElementById('userForm').addEventListener('submit', async (e) => {
         
         if (!response.ok) {
             const error = await response.json();
-            throw new Error(error.message || 'Ошибка создания пользователя');
+            throw new Error(error.message || 'Ошибка сохранения');
         }
         
-        alert('Пользователь успешно создан');
+        alert(userId ? 'Пользователь успешно обновлён' : 'Пользователь успешно создан');
         closeModal('userModal');
         loadUsers();
     } catch (error) {

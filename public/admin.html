@@ -311,26 +311,27 @@
         </div>
     </div>
 
-    <!-- Модальное окно для добавления пользователя -->
+    <!-- Модальное окно для добавления/редактирования пользователя -->
     <div class="modal" id="userModal">
         <div class="modal-content">
-            <h2>Добавить пользователя</h2>
+            <h2 id="userModalTitle">Добавить пользователя</h2>
             <form id="userForm">
+                <input type="hidden" name="id" id="userId">
                 <div class="form-group">
                     <label>Логин</label>
-                    <input type="text" name="username" required>
+                    <input type="text" name="username" id="userUsername" required>
                 </div>
                 <div class="form-group">
-                    <label>Пароль</label>
-                    <input type="password" name="password" required>
+                    <label>Пароль <span id="passwordHint" style="color: #999; font-size: 12px;">(оставьте пустым, чтобы не менять)</span></label>
+                    <input type="password" name="password" id="userPassword">
                 </div>
                 <div class="form-group">
                     <label>Полное имя</label>
-                    <input type="text" name="full_name" required>
+                    <input type="text" name="full_name" id="userFullName" required>
                 </div>
                 <div class="form-group">
                     <label>Роль</label>
-                    <select name="role" required>
+                    <select name="role" id="userRole" required>
                         <option value="admin">Администратор</option>
                         <option value="cashier">Кассир</option>
                         <option value="waiter">Официант</option>
@@ -339,7 +340,7 @@
                         <option value="warehouse">Склад</option>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Создать</button>
+                <button type="submit" class="btn btn-primary" style="width: 100%;" id="userSubmitBtn">Создать</button>
                 <button type="button" class="btn" style="width: 100%; margin-top: 10px; background: #ccc;" onclick="closeModal('userModal')">Отмена</button>
             </form>
         </div>
