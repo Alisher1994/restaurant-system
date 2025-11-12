@@ -249,7 +249,6 @@ async function editProduct(product) {
 }
 
 // Обработчик формы добавления/редактирования товара
-const productForm = document.getElementById('productForm');
 if (productForm) {/ Функции для работы с товарами
 
 // Загрузка товаров
@@ -375,7 +374,6 @@ async function editProduct(product) {
 }
 
 // Обработчик формы добавления/редактирования товара
-const productForm = document.getElementById('productForm');
 if (productForm) {
     productForm.addEventListener('submit', async (e) => {
     e.preventDefault();

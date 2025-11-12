@@ -316,9 +316,6 @@ document.getElementById('userForm').addEventListener('submit', async (e) => {
 
 // Обработчик формы добавления/редактирования категории
 const categoryForm = document.getElementById('categoryForm');
-const API_URL = window.location.origin + '/api';
-const token = localStorage.getItem('token');
-const user = JSON.parse(localStorage.getItem('user') || '{}');
 
 // Проверка авторизации
 if (!token || user.role !== 'admin') {
@@ -635,8 +632,6 @@ document.getElementById('userForm').addEventListener('submit', async (e) => {
 // Обработчик формы добавления/редактирования категории
 const categoryForm = document.getElementById('categoryForm');
 if (categoryForm) {onst API_URL = window.location.origin + '/api';
-const token = localStorage.getItem('token');
-const user = JSON.parse(localStorage.getItem('user') || '{}');
 
 // Проверка авторизации
 if (!token || user.role !== 'admin') {
@@ -1027,7 +1022,6 @@ async function toggleUserStatus(id, isActive) {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const users = await usersResponse.json();
-        const user = users.find(u => u.id === id);
         
         if (!user) throw new Error('Пользователь не найден');
         
